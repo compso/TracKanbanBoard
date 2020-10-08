@@ -90,6 +90,19 @@ li.kanban-card .id-label
 }
 
 
+li.kanban-card .milestone-label
+{
+    color: #0a0acd;
+    float: right;
+}
+
+li.kanban-card .owner-label
+{
+    color: #0a0acd;
+    display: block;
+    /*text-align: right;*/
+}
+
 /*
  * Ticket details dialog
  */

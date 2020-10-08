@@ -38,10 +38,10 @@ class KanbanBoard:
     data_end_regexp = re.compile('\s*}}}')
 
     # These are ticket fields that must be present on all tickets
-    mandatory_fields = ['summary', 'status']
+    mandatory_fields = ['summary', 'status', 'milestone', 'owner']
 
     # These ticket fields are shown in detail dialog regardless of user's field definitions
-    always_shown_fields = ['summary', 'description', 'time', 'changetime']
+    always_shown_fields = ['summary', 'description', 'time', 'changetime', 'milestone', 'owner']
 
     def __init__(self, name, detailed_tickets, ticket_fields, env, logger):
         self.name = name
@@ -98,6 +98,8 @@ class KanbanBoard:
 
             t['summary'] = ticket.get_value_or_default('summary')
             t['status'] = ticket.get_value_or_default('status')
+            t['owner'] = ticket.get_value_or_default('owner')
+            t['milestone'] = ticket.get_value_or_default('milestone')
             self.tickets[str(id)] = t
             valid_ids.append(id)
 
@@ -448,7 +450,7 @@ class KanbanBoardMacro(WikiMacroBase):
 
     implements(ITemplateProvider, IRequestHandler)
 
-    request_regexp = re.compile('\/kanbanboard\/((?P<bid>\w+\s*\w*)(?P<ticket>\/ticket)?)?')
+    request_regexp = re.compile('\/kanbanboard\/((?P<bid>\w+)(?P<ticket>\/ticket)?)?')
 
     ticket_fields = []
 

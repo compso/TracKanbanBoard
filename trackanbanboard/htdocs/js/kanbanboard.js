@@ -1,45 +1,3 @@
-function getCookie(c_name)
-{
-    var c_value = document.cookie;
-    var c_start = c_value.indexOf(" " + c_name + "=");
-    if (c_start == -1)
-      {
-      c_start = c_value.indexOf(c_name + "=");
-      }
-    if (c_start == -1)
-      {
-      c_value = null;
-      }
-    else
-      {
-      c_start = c_value.indexOf("=", c_start) + 1;
-      var c_end = c_value.indexOf(";", c_start);
-      if (c_end == -1)
-      {
-    c_end = c_value.length;
-    }
-    c_value = unescape(c_value.substring(c_start,c_end));
-    }
-    return c_value;
-};
-
-function checkSession(){
-    var check = true;
-    var trac_auth = getCookie('trac_auth');
-    var trac_form_token = getCookie('trac_form_token');
-    var alert_msg = "Session expired. Please relogin.";
-    if(trac_auth == null || trac_form_token == null){
-        check = false;
-        alert(alert_msg);
-    }
-    else if (trac_auth.length <= 0 || trac_form_token.length <= 0){
-        check = false;
-        alert(alert_msg);
-    }
-    return check;
-};
-
-
 var kanban = kanban || {};
 
 kanban.Ticket = function(data) {
@@ -118,7 +76,7 @@ kanban.Ticket = function(data) {
     Serialize Ticket object. Only id and modified fields are included.
 */
 kanban.Ticket.prototype.toJSON = function() {
-    var obj = { id: this.id };
+    var obj = { id: this.id , modified: this.modified};
     for (var i in this.modifiedFields) {
         var fieldName = this.modifiedFields[i];
         obj[fieldName] = this[fieldName];
@@ -481,17 +439,15 @@ kanban.Board = function(data) {
 };
 
 kanban.request = function(url, type, reqData, onSuccess, onError) {
-    if(checkSession()){
-        $.ajax({
-            type: type,
-            url: url,
-            contentType: 'application/json',
-            data: reqData,
-            dataType: 'json',
-            success: onSuccess,
-            error: onError
-        });
-    }
+    $.ajax({
+        type: type,
+        url: url,
+        contentType: 'application/json',
+        data: reqData,
+        dataType: 'json',
+        success: onSuccess,
+        error: onError
+    });
 };
 
 kanban.onDataFetched = function(data) {
@@ -534,7 +490,6 @@ kanban.onDataFetchError = function(jqXHR, textStatus, error) {
 };
 
 $(document).ready(function(){
-    console.log("Session: "+ checkSession());
     console.log(
         "Board ID:", KANBAN_BOARD_ID,
         "; Project name:", TRAC_PROJECT_NAME,
@@ -543,7 +498,7 @@ $(document).ready(function(){
         "; Ticket fields:", TICKET_FIELDS);
 
     kanban.DATA_URL = '/' + TRAC_PROJECT_NAME + '/kanbanboard/' + KANBAN_BOARD_ID;
-    kanban.QUERY_URL = '/' + TRAC_PROJECT_NAME + '/query?status=new&col=id&col=summary&col=status&col=type&col=priority&order=id';
+    kanban.QUERY_URL = '/' + TRAC_PROJECT_NAME + '/query?status=dev_ready&col=id&col=summary&col=status&col=type&col=priority&order=id';
     kanban.TICKET_URL = kanban.DATA_URL + '/ticket';
 
     $('.board-container .toolbar button').button();
@@ -648,7 +603,7 @@ kanban.getNewTicketData = function() {
             if (field.name === 'status')
                 value = 'new';
             if (field.name === 'owner')
-                value = 'somebody';
+                value = '';
             if (field.name === 'reporter')
                 value = TRAC_USER_NAME;
             if (field.name === 'resolution')
